@@ -11,7 +11,7 @@ export const hasFSA =
   'showSaveFilePicker' in window;
 
 const COFRE_ACCEPT = [
-  { description: 'Arquivo Cofre', accept: { 'application/json': ['.cofre'] } }
+  { description: 'Arquivo Cofre', accept: { 'application/octet-stream': ['.cofre'] } }
 ];
 const JSON_ACCEPT = [
   { description: 'JSON', accept: { 'application/json': ['.json'] } }
@@ -65,6 +65,11 @@ export async function addRecent(name, handle) {
 }
 export function clearRecents() {
   localStorage.removeItem(RECENTS_KEY);
+}
+export function removeRecent(name) {
+  const list = getRecents().filter((r) => r.name !== name);
+  localStorage.setItem(RECENTS_KEY, JSON.stringify(list));
+  return list;
 }
 
 /* ---------- Permissões FSA ---------- */
@@ -126,7 +131,7 @@ export async function openCofre() {
     await addRecent(file.name, handle);
     return { name: file.name, text, handle };
   }
-  const res = await openViaInput('.cofre,application/json');
+  const res = await openViaInput('.cofre');
   if (!res) return null;
   await addRecent(res.name, null);
   return { name: res.name, text: res.text, handle: null };

@@ -2,7 +2,7 @@
 import { ref } from 'vue';
 import Icon from './Icon.vue';
 import { store, navigate, loadData, showToast, formatStamp } from '../lib/store.js';
-import { openCofre, openJson, getRecents, reopenRecent } from '../lib/files.js';
+import { openCofre, openJson, getRecents, reopenRecent, removeRecent } from '../lib/files.js';
 
 const recents = ref(getRecents());
 
@@ -49,6 +49,10 @@ async function openRecent(name) {
   } catch (e) {
     showToast('Não foi possível reabrir');
   }
+}
+
+function deleteRecent(name) {
+  recents.value = removeRecent(name);
 }
 </script>
 
@@ -99,14 +103,19 @@ async function openRecent(name) {
       </div>
       <div class="recent-list">
         <template v-if="recents.length">
-          <button v-for="f in recents" :key="f.name" class="recent-item" @click="openRecent(f.name)">
-            <Icon name="lock" :size="19" style="color: var(--accent-bright);" />
-            <div class="grow">
-              <div class="recent-name">{{ f.name }}</div>
-              <div class="recent-date">{{ formatStamp(f.date) }}</div>
-            </div>
-            <Icon name="chevron-right" :size="18" style="color: var(--dim);" />
-          </button>
+          <div v-for="f in recents" :key="f.name" class="recent-item">
+            <button class="recent-open" @click="openRecent(f.name)">
+              <Icon name="lock" :size="19" style="color: var(--accent-bright);" />
+              <div class="grow">
+                <div class="recent-name">{{ f.name }}</div>
+                <div class="recent-date">{{ formatStamp(f.date) }}</div>
+              </div>
+              <Icon name="chevron-right" :size="18" style="color: var(--dim);" />
+            </button>
+            <button class="recent-del" @click="deleteRecent(f.name)" title="Remover do histórico">
+              <Icon name="x" :size="16" />
+            </button>
+          </div>
         </template>
         <div v-else class="empty-mini">Nenhum arquivo aberto recentemente.</div>
       </div>

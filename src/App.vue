@@ -1,5 +1,7 @@
 <script setup>
-import { store } from './lib/store.js';
+import { onMounted } from 'vue';
+import { store, navigate, showToast } from './lib/store.js';
+import { addRecent } from './lib/files.js';
 import StartScreen from './components/StartScreen.vue';
 import UnlockScreen from './components/UnlockScreen.vue';
 import VaultScreen from './components/VaultScreen.vue';
@@ -9,6 +11,24 @@ import FoldersScreen from './components/FoldersScreen.vue';
 import MenuSheet from './components/MenuSheet.vue';
 import GeneratorSheet from './components/GeneratorSheet.vue';
 import Toast from './components/Toast.vue';
+
+onMounted(() => {
+  if (!('launchQueue' in window)) return;
+  window.launchQueue.setConsumer(async (launchParams) => {
+    if (!launchParams.files || launchParams.files.length === 0) return;
+    const handle = launchParams.files[0];
+    try {
+      const file = await handle.getFile();
+      const envelope = JSON.parse(await file.text());
+      await addRecent(file.name, handle);
+      store.pendingOpen = { name: file.name, envelope, handle };
+      store.unlockError = '';
+      navigate('unlock');
+    } catch {
+      showToast('Arquivo inválido ou não é um cofre');
+    }
+  });
+});
 </script>
 
 <template>

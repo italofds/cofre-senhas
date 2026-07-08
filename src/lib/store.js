@@ -87,8 +87,10 @@ export function loadData(data, name, handle, modified) {
     notes: r.notes || '',
     folder: r.folder || 'Pessoal'
   }));
-  const folders = [...DEFAULT_FOLDERS];
-  store.records.forEach((r) => { if (r.folder && !folders.includes(r.folder)) folders.push(r.folder); });
+  const seen = new Set();
+  const folders = [];
+  store.records.forEach((r) => { if (r.folder && !seen.has(r.folder)) { seen.add(r.folder); folders.push(r.folder); } });
+  if (folders.length === 0) folders.push('Pessoal');
   store.folders = folders;
   store.vaultName = name || 'Nova lista';
   store.fileHandle = handle || null;
