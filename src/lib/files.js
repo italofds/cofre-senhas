@@ -154,6 +154,8 @@ export async function openJson() {
 }
 
 // Salva o envelope .cofre. Reusa handle existente (salvar no mesmo arquivo) quando possível.
+// Se a escrita falhar (ex.: arquivo de nuvem no Android), retorna needsFallback: true
+// para que a UI ofereça compartilhar via Web Share API ou baixar localmente.
 export async function saveCofre(envelopeText, suggestedName, existingHandle) {
   if (hasFSA) {
     let handle = existingHandle || null;
@@ -163,18 +165,35 @@ export async function saveCofre(envelopeText, suggestedName, existingHandle) {
         handle = await window.showSaveFilePicker({ suggestedName, types: COFRE_ACCEPT });
       } catch (e) {
         if (e && e.name === 'AbortError') return { handle: existingHandle, name: null, saved: false };
-        throw e;
+        return { saved: false, needsFallback: true };
       }
     }
-    const writable = await handle.createWritable();
-    await writable.write(envelopeText);
-    await writable.close();
-    await addRecent(handle.name, handle);
-    return { handle, name: handle.name, saved: true };
+    try {
+      const writable = await handle.createWritable();
+      await writable.write(envelopeText);
+      await writable.close();
+      await addRecent(handle.name, handle);
+      return { handle, name: handle.name, saved: true };
+    } catch {
+      return { saved: false, needsFallback: true };
+    }
   }
   downloadText(envelopeText, suggestedName, 'application/octet-stream');
   await addRecent(suggestedName, null);
   return { handle: null, name: suggestedName, saved: true };
+}
+
+// Verifica se o browser suporta compartilhar arquivos via Web Share API (Android/iOS).
+export function canShareFiles() {
+  if (!navigator.share || !navigator.canShare) return false;
+  try { return navigator.canShare({ files: [new File([''], 'test')] }); }
+  catch { return false; }
+}
+
+// Compartilha o arquivo .cofre via share sheet nativo do sistema operacional.
+export async function shareFile(text, filename) {
+  const file = new File([text], filename, { type: 'application/octet-stream' });
+  await navigator.share({ files: [file], title: filename });
 }
 
 // Exporta JSON (download em ambos os modos, é o comportamento esperado)

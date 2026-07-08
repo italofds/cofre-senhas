@@ -30,5 +30,6 @@ export const icons = {
   edit: '<path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M14 5l4 4"/>',
   'alert-circle': '<circle cx="12" cy="12" r="9"/><path d="M12 8v5"/><path d="M12 16h.01"/>',
   'check-circle': '<circle cx="12" cy="12" r="9"/><path d="M8 12l3 3 5-6"/>',
-  'key-off': '<circle cx="8" cy="15" r="4"/><path d="M11 12l8-8"/><path d="M3 3l18 18"/>'
+  'key-off': '<circle cx="8" cy="15" r="4"/><path d="M11 12l8-8"/><path d="M3 3l18 18"/>',
+  share: '<path d="M4 12v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-6"/><path d="M12 3v11"/><path d="M8 7l4-4 4 4"/>'
 };
