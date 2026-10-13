@@ -24,6 +24,20 @@ Gerenciador de senhas **apenas front-end** (Vue 3 + Vite), instalável como PWA 
 - **Android / navegadores sem suporte**: cai automaticamente para *download* (salvar) e
   seletor de arquivos (abrir); os recentes guardam apenas o histórico de nomes.
 
+### Nuvem (opcional)
+Além dos arquivos, o cofre pode ser aberto e salvo na
+[cloud-blob-api](https://github.com/italofds/cloud-blob-api), com um **id** e a **senha mestra**.
+
+- As opções de nuvem só aparecem quando `VITE_API_URL` está definida (`.env.development` e
+  `.env.production`). Sem ela, o app trabalha apenas com arquivos.
+- O cofre é cifrado no navegador (`src/lib/cloud.js`): da senha mestra saem, via PBKDF2
+  (600.000 iterações) + HKDF, uma chave de autenticação e uma chave AES-256-GCM. A API recebe só
+  a chave de autenticação e um blob que ela não consegue ler; a senha nunca sai do dispositivo.
+- O id é enviado com o prefixo `pwd-`, para não colidir com outros apps que usam a mesma API.
+- Depois de abrir ou criar o cofre na nuvem, a sessão fica em memória para salvar com um toque e
+  é apagada ao bloquear ou fechar o app.
+- A origem do site publicado precisa estar em `CORS_ORIGIN` na API.
+
 ## Formato do JSON (import/export e conteúdo descriptografado)
 
 ```json
@@ -106,6 +120,7 @@ Depois de instalado e com o Service Worker ativo, o app funciona sem internet.
    ├─ lib/
    │  ├─ crypto.js         AES-256-GCM + PBKDF2 (Web Crypto)
    │  ├─ files.js          File System Access + fallback + recentes
+   │  ├─ cloud.js          nuvem opcional (cifra + chamadas à cloud-blob-api)
    │  ├─ generator.js      gerador de senha (CSPRNG)
    │  ├─ strength.js       indicador de força
    │  ├─ icons.js          ícones SVG inline (offline)

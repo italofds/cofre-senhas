@@ -47,6 +47,7 @@ const noResults = computed(() => store.records.length > 0 && filtered.value.leng
             <span v-if="store.dirty">Modificado (não salvo)</span>
             <span v-else-if="store.modified">Modificado em {{ formatStamp(store.modified) }}</span>
             <span v-else>Não salvo ainda</span>
+            <span v-if="store.cloud"> · Nuvem: {{ store.cloud.id }}</span>
           </div>
         </div>
         <button class="icon-btn" @click="store.showMenu = true"><Icon name="more-vertical" :size="22" /></button>

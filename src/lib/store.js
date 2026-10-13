@@ -1,4 +1,4 @@
-import { reactive } from 'vue';
+import { reactive, markRaw } from 'vue';
 import { generatePassword, DEFAULT_SYMBOLS } from './generator.js';
 
 const DEFAULT_FOLDERS = ['Pessoal', 'Trabalho', 'Financeiro'];
@@ -19,6 +19,8 @@ export const store = reactive({
   modified: null,
   dirty: false,
   fileHandle: null,
+  cloud: null, // sessão da nuvem { id, authKey, encKey, rev } — somente em memória
+  cloudMode: 'open', // 'open' | 'create' (tela da nuvem)
 
   // UI
   search: '',
@@ -62,6 +64,7 @@ export function wipe() {
   store.modified = null;
   store.dirty = false;
   store.fileHandle = null;
+  store.cloud = null;
   store.search = '';
   store.activeFolder = 'Todas';
   store.draft = emptyDraft();
@@ -94,6 +97,7 @@ export function loadData(data, name, handle, modified) {
   store.folders = folders;
   store.vaultName = name || 'Nova lista';
   store.fileHandle = handle || null;
+  store.cloud = null;
   store.modified = modified || null;
   store.dirty = false;
   store.activeFolder = 'Todas';
@@ -115,6 +119,21 @@ export function toExportDataNoPasswords() {
       title, login, password: '', url, notes, folder
     }))
   };
+}
+
+/* ---------- nuvem ---------- */
+// Conteúdo cifrado enviado à nuvem: o schema do projeto mais a data da modificação
+export function toCloudData() {
+  return { ...toVaultData(), modified: new Date().toISOString() };
+}
+export function setCloudSession(session) {
+  store.cloud = session ? markRaw(session) : null;
+}
+// Chamado após gravar `data` na nuvem com sucesso
+export function cloudSaved(session, data) {
+  setCloudSession(session);
+  store.modified = data.modified;
+  store.dirty = false;
 }
 
 /* ---------- registros ---------- */

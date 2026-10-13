@@ -3,8 +3,10 @@ import { ref } from 'vue';
 import Icon from './Icon.vue';
 import { store, navigate, loadData, showToast, formatStamp } from '../lib/store.js';
 import { openCofre, openJson, getRecents, reopenRecent, removeRecent } from '../lib/files.js';
+import { cloudEnabled } from '../lib/cloud.js';
 
 const recents = ref(getRecents());
+const cloudOn = cloudEnabled();
 
 function newList() {
   loadData({ records: [] }, 'Nova lista', null);
@@ -22,6 +24,11 @@ async function openFile() {
   } catch (e) {
     showToast('Arquivo inválido ou não é um cofre');
   }
+}
+
+function openFromCloud() {
+  store.cloudMode = 'open';
+  navigate('cloud');
 }
 
 async function importJson() {
@@ -63,7 +70,7 @@ function deleteRecent(name) {
         <div class="brand-logo"><Icon name="shield" :size="24" /></div>
         <div>
           <div class="brand-title">Cofre</div>
-          <div class="brand-sub">Senhas criptografadas, 100% offline</div>
+          <div class="brand-sub">{{ cloudOn ? 'Senhas criptografadas, em arquivo ou na nuvem' : 'Senhas criptografadas, 100% offline' }}</div>
         </div>
       </div>
 
@@ -83,6 +90,15 @@ function deleteRecent(name) {
           <div class="grow">
             <div class="action-title">Abrir arquivo .cofre</div>
             <div class="action-sub">Desbloqueie com a senha mestra</div>
+          </div>
+          <Icon name="chevron-right" :size="20" style="color: var(--dim);" />
+        </button>
+
+        <button v-if="cloudOn" class="action-card" @click="openFromCloud">
+          <div class="action-ico"><Icon name="cloud" :size="21" /></div>
+          <div class="grow">
+            <div class="action-title">Abrir da nuvem</div>
+            <div class="action-sub">Entre com id e senha mestra</div>
           </div>
           <Icon name="chevron-right" :size="20" style="color: var(--dim);" />
         </button>

@@ -1,13 +1,45 @@
 <script setup>
 import Icon from './Icon.vue';
-import { store, navigate, showToast, toExportDataNoPasswords, toVaultData, wipe } from '../lib/store.js';
+import { ref } from 'vue';
+import { store, navigate, showToast, toExportDataNoPasswords, toVaultData, toCloudData, cloudSaved, wipe } from '../lib/store.js';
 import { saveJson } from '../lib/files.js';
+import { CloudError, cloudEnabled, cloudMessage, saveCloud } from '../lib/cloud.js';
+
+const cloudOn = cloudEnabled();
+const busy = ref(false);
 
 function close() { store.showMenu = false; }
 
 function gotoSave() {
   close();
   navigate('save');
+}
+async function saveToCloud() {
+  const session = store.cloud;
+  if (!session) {
+    close();
+    store.cloudMode = 'create';
+    navigate('cloud');
+    return;
+  }
+  if (busy.value) return;
+  busy.value = true;
+  try {
+    const data = toCloudData();
+    try {
+      cloudSaved(await saveCloud(session, data), data);
+    } catch (e) {
+      if (!(e instanceof CloudError) || e.code !== 'conflict' || e.rev === undefined) throw e;
+      if (!window.confirm('A nuvem tem uma versão mais recente, salva em outro dispositivo. Sobrescrever?')) return;
+      cloudSaved(await saveCloud({ ...session, rev: e.rev }, data), data);
+    }
+    close();
+    showToast('Salvo na nuvem');
+  } catch (e) {
+    showToast(cloudMessage(e));
+  } finally {
+    busy.value = false;
+  }
 }
 function gotoFolders() {
   close();
@@ -36,7 +68,7 @@ async function exportJsonWithPasswords() {
 function lock() {
   if (store.dirty) {
     const sure = window.confirm(
-      'Você tem alterações não salvas. Ao bloquear e sair, tudo o que não foi salvo em um arquivo .cofre será perdido.\n\n' +
+      'Você tem alterações não salvas. Ao bloquear e sair, tudo o que não foi salvo será perdido.\n\n' +
       'Deseja continuar mesmo assim?'
     );
     if (!sure) return;
@@ -56,6 +88,13 @@ function lock() {
         <div>
           <div class="menu-title">Salvar arquivo .cofre</div>
           <div class="menu-sub">Criptografado com senha mestra</div>
+        </div>
+      </button>
+      <button v-if="cloudOn" class="menu-item" :disabled="busy" @click="saveToCloud">
+        <span class="menu-ico accent"><Icon name="cloud-upload" :size="22" /></span>
+        <div>
+          <div class="menu-title">{{ busy ? 'Salvando…' : 'Salvar na nuvem' }}</div>
+          <div class="menu-sub">{{ store.cloud ? 'Atualizar o cofre de ' + store.cloud.id : 'Criptografado com id e senha mestra' }}</div>
         </div>
       </button>
       <button class="menu-item" @click="gotoFolders">
