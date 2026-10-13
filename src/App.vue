@@ -8,6 +8,8 @@ import VaultScreen from './components/VaultScreen.vue';
 import RecordScreen from './components/RecordScreen.vue';
 import SaveScreen from './components/SaveScreen.vue';
 import CloudScreen from './components/CloudScreen.vue';
+import QrExportScreen from './components/QrExportScreen.vue';
+import QrScanScreen from './components/QrScanScreen.vue';
 import FoldersScreen from './components/FoldersScreen.vue';
 import MenuSheet from './components/MenuSheet.vue';
 import GeneratorSheet from './components/GeneratorSheet.vue';
@@ -41,6 +43,8 @@ onMounted(() => {
       <RecordScreen v-else-if="store.screen === 'record'" />
       <SaveScreen v-else-if="store.screen === 'save'" />
       <CloudScreen v-else-if="store.screen === 'cloud'" />
+      <QrExportScreen v-else-if="store.screen === 'exportQr'" />
+      <QrScanScreen v-else-if="store.screen === 'scan'" />
       <FoldersScreen v-else-if="store.screen === 'folders'" />
     </div>
 

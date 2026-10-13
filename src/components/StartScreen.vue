@@ -94,6 +94,15 @@ function deleteRecent(name) {
           <Icon name="chevron-right" :size="20" style="color: var(--dim);" />
         </button>
 
+        <button class="action-card" @click="navigate('scan')">
+          <div class="action-ico"><Icon name="qr" :size="21" /></div>
+          <div class="grow">
+            <div class="action-title">Abrir por QR code</div>
+            <div class="action-sub">Leia os códigos impressos com a câmera</div>
+          </div>
+          <Icon name="chevron-right" :size="20" style="color: var(--dim);" />
+        </button>
+
         <button v-if="cloudOn" class="action-card" @click="openFromCloud">
           <div class="action-ico"><Icon name="cloud" :size="21" /></div>
           <div class="grow">

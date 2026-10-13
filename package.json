@@ -11,6 +11,9 @@
     "deploy": "vite build && gh-pages -d dist"
   },
   "dependencies": {
+    "jspdf": "^3.0.1",
+    "qr-scanner": "^1.4.2",
+    "qrcode-generator": "^1.4.4",
     "vue": "^3.4.0"
   },
   "devDependencies": {

@@ -33,5 +33,7 @@ export const icons = {
   'key-off': '<circle cx="8" cy="15" r="4"/><path d="M11 12l8-8"/><path d="M3 3l18 18"/>',
   share: '<path d="M4 12v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-6"/><path d="M12 3v11"/><path d="M8 7l4-4 4 4"/>',
   cloud: '<path d="M7 18a4.5 4.5 0 0 1-.6-8.96A6 6 0 0 1 18 10.5a3.75 3.75 0 0 1-.5 7.5z"/>',
+  qr: '<rect x="4" y="4" width="6" height="6" rx="1"/><rect x="14" y="4" width="6" height="6" rx="1"/><rect x="4" y="14" width="6" height="6" rx="1"/><path d="M14 14h2v2"/><path d="M20 14v2"/><path d="M14 20h2"/><path d="M18 18h2v2"/>',
+  camera: '<path d="M4 8a2 2 0 0 1 2-2h2l1.5-2h5L16 6h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><circle cx="12" cy="12.5" r="3.5"/>',
   'cloud-upload': '<path d="M7 18a4.5 4.5 0 0 1-.6-8.96A6 6 0 0 1 18 10.5a3.75 3.75 0 0 1-.5 7.5"/><path d="M12 20v-8"/><path d="M9 14.5l3-3 3 3"/>'
 };

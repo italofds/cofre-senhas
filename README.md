@@ -38,6 +38,17 @@ Além dos arquivos, o cofre pode ser aberto e salvo na
   é apagada ao bloquear ou fechar o app.
 - A origem do site publicado precisa estar em `CORS_ORIGIN` na API.
 
+### Backup em papel (PDF com QR codes)
+- No menu do cofre, **Exportar PDF com QR codes** pede uma senha mestra, cifra o cofre e gera
+  um PDF A4 com um ou mais QR codes (6 por página) para imprimir.
+- Na tela inicial, **Abrir por QR code** usa a câmera para ler os códigos, em qualquer ordem;
+  ao completar o conjunto, pede a senha mestra. A câmera exige HTTPS ou `localhost`.
+- O conteúdo é um binário compacto, diferente do `.cofre`
+  (`"CFR" | versão | flags | iterações | salt | iv | texto cifrado`): o JSON é comprimido
+  (deflate) e cifrado com o mesmo AES-256-GCM/PBKDF2, com o cabeçalho autenticado. Cada QR code
+  leva uma parte em Base45 com o prefixo `COFRE:`, o id do conjunto, o índice e o total
+  (`src/lib/qr.js`; o tamanho de cada parte é a constante `CHUNK_BYTES`).
+
 ## Formato do JSON (import/export e conteúdo descriptografado)
 
 ```json
@@ -120,6 +131,8 @@ Depois de instalado e com o Service Worker ativo, o app funciona sem internet.
    ├─ lib/
    │  ├─ crypto.js         AES-256-GCM + PBKDF2 (Web Crypto)
    │  ├─ files.js          File System Access + fallback + recentes
+   │  ├─ qr.js             divisão do cofre em QR codes (Base45) e remontagem
+   │  ├─ qrpdf.js          PDF A4 com os QR codes (jsPDF, carregado sob demanda)
    │  ├─ cloud.js          nuvem opcional (cifra + chamadas à cloud-blob-api)
    │  ├─ generator.js      gerador de senha (CSPRNG)
    │  ├─ strength.js       indicador de força

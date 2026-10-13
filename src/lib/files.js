@@ -16,6 +16,9 @@ const COFRE_ACCEPT = [
 const JSON_ACCEPT = [
   { description: 'JSON', accept: { 'application/json': ['.json'] } }
 ];
+const PDF_ACCEPT = [
+  { description: 'PDF', accept: { 'application/pdf': ['.pdf'] } }
+];
 
 /* ---------- IndexedDB: guarda os handles de arquivo (não guarda dados) ---------- */
 const DB_NAME = 'cofre-handles';
@@ -211,6 +214,24 @@ export async function saveJson(jsonText, suggestedName) {
     }
   }
   downloadText(jsonText, suggestedName, 'application/json');
+  return true;
+}
+
+// Salva o PDF dos QR codes (mesmo comportamento do saveJson)
+export async function savePdf(blob, suggestedName) {
+  if (hasFSA) {
+    try {
+      const handle = await window.showSaveFilePicker({ suggestedName, types: PDF_ACCEPT });
+      const w = await handle.createWritable();
+      await w.write(blob);
+      await w.close();
+      return true;
+    } catch (e) {
+      if (e && e.name === 'AbortError') return false;
+      // se falhar, cai para download
+    }
+  }
+  downloadText(blob, suggestedName, 'application/pdf');
   return true;
 }
 

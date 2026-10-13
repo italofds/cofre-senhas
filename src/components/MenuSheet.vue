@@ -41,6 +41,10 @@ async function saveToCloud() {
     busy.value = false;
   }
 }
+function gotoExportQr() {
+  close();
+  navigate('exportQr');
+}
 function gotoFolders() {
   close();
   navigate('folders');
@@ -95,6 +99,13 @@ function lock() {
         <div>
           <div class="menu-title">{{ busy ? 'Salvando…' : 'Salvar na nuvem' }}</div>
           <div class="menu-sub">{{ store.cloud ? 'Atualizar o cofre de ' + store.cloud.id : 'Criptografado com id e senha mestra' }}</div>
+        </div>
+      </button>
+      <button class="menu-item" @click="gotoExportQr">
+        <span class="menu-ico accent"><Icon name="qr" :size="22" /></span>
+        <div>
+          <div class="menu-title">Exportar PDF com QR codes</div>
+          <div class="menu-sub">Criptografado, para imprimir</div>
         </div>
       </button>
       <button class="menu-item" @click="gotoFolders">

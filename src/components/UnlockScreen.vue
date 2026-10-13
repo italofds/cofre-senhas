@@ -2,7 +2,7 @@
 import { ref } from 'vue';
 import Icon from './Icon.vue';
 import { store, back, navigate, loadData, showToast } from '../lib/store.js';
-import { decryptVault } from '../lib/crypto.js';
+import { decryptVault, decryptVaultBinary } from '../lib/crypto.js';
 
 const master = ref('');
 const show = ref(false);
@@ -14,9 +14,14 @@ async function unlock() {
   busy.value = true;
   error.value = '';
   try {
-    const data = await decryptVault(store.pendingOpen.envelope, master.value);
+    const pending = store.pendingOpen;
+    // cofre lido de QR codes vem em binário; nome e data estão dentro do conteúdo cifrado
+    const data = pending.bytes
+      ? await decryptVaultBinary(pending.bytes, master.value)
+      : await decryptVault(pending.envelope, master.value);
     if (!data || !Array.isArray(data.records)) throw new Error('Conteúdo inesperado');
-    loadData(data, store.pendingOpen.name, store.pendingOpen.handle, store.pendingOpen.envelope.modified);
+    if (pending.bytes) loadData(data, data.name || pending.name, null, data.modified);
+    else loadData(data, pending.name, pending.handle, pending.envelope.modified);
     master.value = '';
     store.pendingOpen = null;
     store.screen = 'vault';

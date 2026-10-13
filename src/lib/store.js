@@ -33,7 +33,7 @@ export const store = reactive({
   gen: { length: 16, lower: true, upper: true, numbers: true, symbols: true, symbolSet: DEFAULT_SYMBOLS, value: '' },
 
   // fluxo de abertura
-  pendingOpen: null, // { name, envelope, handle }
+  pendingOpen: null, // { name, envelope, handle } ou, vindo de QR codes, { name, bytes, handle }
   unlockError: '',
 
   toast: ''

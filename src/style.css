@@ -245,6 +245,25 @@ textarea.input-block { min-height: 90px; resize: none; line-height: 1.5; }
 .file-card { display: flex; align-items: center; gap: 12px; background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 14px; }
 .file-card-ico { width: 40px; height: 40px; flex: 0 0 auto; border-radius: 11px; background: rgba(44,158,130,0.14); display: flex; align-items: center; justify-content: center; color: var(--accent-bright); }
 
+/* ---------- leitura de QR code ---------- */
+.scan-box {
+  position: relative; width: 100%; aspect-ratio: 1 / 1; overflow: hidden;
+  background: #000; border: 1px solid var(--line); border-radius: 18px;
+}
+.scan-video { width: 100%; height: 100%; object-fit: cover; display: block; }
+.scan-msg {
+  position: absolute; inset: 0; padding: 24px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px;
+  background: var(--card); color: var(--muted); font-size: 13.5px; line-height: 1.5; text-align: center;
+}
+.scan-status { margin: 18px 0 14px; text-align: center; font-size: 15px; font-weight: 600; }
+.scan-part {
+  min-width: 34px; padding: 7px 0; border-radius: 10px; text-align: center;
+  font-size: 13px; font-weight: 700; font-family: var(--mono);
+  background: var(--card); border: 1px solid var(--line); color: var(--dim);
+}
+.scan-part.done { background: rgba(44,158,130,0.16); border-color: rgba(44,158,130,0.5); color: var(--accent-bright); }
+
 /* ---------- folders ---------- */
 .folder-item { display: flex; align-items: center; gap: 11px; background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 12px 10px 12px 14px; }
 .folder-name { font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
