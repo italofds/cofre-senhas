@@ -78,6 +78,17 @@ export function wipe() {
   store.screen = 'start';
 }
 
+// Pede confirmação e sai do cofre aberto. `question` é a pergunta usada quando não há alterações pendentes.
+export function confirmExitVault(question) {
+  const msg = store.dirty
+    ? 'Você tem alterações não salvas. Ao sair, tudo o que não foi salvo será perdido.\n\n' +
+      'Deseja continuar mesmo assim?'
+    : question;
+  if (msg && !window.confirm(msg)) return false;
+  wipe();
+  return true;
+}
+
 /* ---------- carregar dados descriptografados ---------- */
 export function loadData(data, name, handle, modified) {
   const recs = Array.isArray(data && data.records) ? data.records : [];

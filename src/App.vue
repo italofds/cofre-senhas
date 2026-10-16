@@ -1,6 +1,6 @@
 <script setup>
-import { onMounted } from 'vue';
-import { store, navigate, showToast } from './lib/store.js';
+import { onMounted, onBeforeUnmount } from 'vue';
+import { store, navigate, back, showToast, confirmExitVault } from './lib/store.js';
 import { addRecent } from './lib/files.js';
 import StartScreen from './components/StartScreen.vue';
 import UnlockScreen from './components/UnlockScreen.vue';
@@ -14,6 +14,38 @@ import FoldersScreen from './components/FoldersScreen.vue';
 import MenuSheet from './components/MenuSheet.vue';
 import GeneratorSheet from './components/GeneratorSheet.vue';
 import Toast from './components/Toast.vue';
+
+/* ---------- botão voltar do navegador / dispositivo ----------
+   Mantém uma entrada extra ("sentinela") no histórico do navegador: o voltar
+   consome essa entrada, disparando `popstate`, e a navegação é tratada pelo app.
+   A sentinela é recolocada, exceto quando o usuário confirma sair do app. */
+function pushGuard() {
+  history.pushState({ cofreGuard: true }, '');
+}
+
+function onBackButton() {
+  if (store.showGenerator) {
+    store.showGenerator = false;
+  } else if (store.showMenu) {
+    store.showMenu = false;
+  } else if (store.screen === 'vault') {
+    confirmExitVault('Deseja sair deste cofre?');
+  } else if (store.screen === 'start') {
+    if (window.confirm('Deseja sair do aplicativo?')) {
+      history.back(); // sai da página (no app instalado, fecha o app)
+      return;
+    }
+  } else {
+    back();
+  }
+  pushGuard();
+}
+
+onMounted(() => {
+  if (!history.state || !history.state.cofreGuard) pushGuard();
+  window.addEventListener('popstate', onBackButton);
+});
+onBeforeUnmount(() => window.removeEventListener('popstate', onBackButton));
 
 onMounted(() => {
   if (!('launchQueue' in window)) return;

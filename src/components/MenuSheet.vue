@@ -1,7 +1,7 @@
 <script setup>
 import Icon from './Icon.vue';
 import { ref } from 'vue';
-import { store, navigate, showToast, toExportDataNoPasswords, toVaultData, toCloudData, cloudSaved, wipe } from '../lib/store.js';
+import { store, navigate, showToast, toExportDataNoPasswords, toVaultData, toCloudData, cloudSaved, confirmExitVault } from '../lib/store.js';
 import { saveJson } from '../lib/files.js';
 import { CloudError, cloudEnabled, cloudMessage, saveCloud } from '../lib/cloud.js';
 
@@ -70,15 +70,7 @@ async function exportJsonWithPasswords() {
   if (ok) showToast('Exportado em JSON (com senhas) — mantenha em local seguro');
 }
 function lock() {
-  if (store.dirty) {
-    const sure = window.confirm(
-      'Você tem alterações não salvas. Ao bloquear e sair, tudo o que não foi salvo será perdido.\n\n' +
-      'Deseja continuar mesmo assim?'
-    );
-    if (!sure) return;
-  }
-  close();
-  wipe();
+  confirmExitVault();
 }
 </script>
 

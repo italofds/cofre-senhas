@@ -4,6 +4,9 @@ import Icon from './Icon.vue';
 import { store, openRecord, newRecord, copyText, formatStamp } from '../lib/store.js';
 import { passwordStrength } from '../lib/strength.js';
 
+// ordem alfabética do nome, ignorando maiúsculas/acentos e com números em ordem natural
+const byName = new Intl.Collator('pt-BR', { sensitivity: 'base', numeric: true });
+
 const counts = computed(() => {
   const c = {};
   store.records.forEach((r) => { c[r.folder] = (c[r.folder] || 0) + 1; });
@@ -25,11 +28,13 @@ const filtered = computed(() => {
       [r.title, r.login, r.password, r.url, r.notes, r.folder].some((v) => (v || '').toLowerCase().includes(term))
     );
   }
-  return list.map((r) => ({
-    ...r,
-    initial: (r.title || '?').trim().charAt(0).toUpperCase() || '?',
-    color: passwordStrength(r.password).color
-  }));
+  return list
+    .map((r) => ({
+      ...r,
+      initial: (r.title || '?').trim().charAt(0).toUpperCase() || '?',
+      color: passwordStrength(r.password).color
+    }))
+    .sort((a, b) => byName.compare(a.title.trim(), b.title.trim()));
 });
 
 const isEmpty = computed(() => store.records.length === 0);
