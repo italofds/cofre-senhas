@@ -1,9 +1,12 @@
 <script setup>
 import Icon from './Icon.vue';
+import { useRouter } from 'vue-router';
 import { ref } from 'vue';
-import { store, navigate, showToast, toExportDataNoPasswords, toVaultData, toCloudData, cloudSaved, confirmExitVault } from '../lib/store.js';
+import { store, showToast, toExportDataNoPasswords, toVaultData, toCloudData, cloudSaved, confirmExitVault } from '../lib/store.js';
 import { saveJson } from '../lib/files.js';
 import { CloudError, cloudEnabled, cloudMessage, saveCloud } from '../lib/cloud.js';
+
+const router = useRouter();
 
 const cloudOn = cloudEnabled();
 const busy = ref(false);
@@ -12,14 +15,13 @@ function close() { store.showMenu = false; }
 
 function gotoSave() {
   close();
-  navigate('save');
+  router.push({ name: 'save' });
 }
 async function saveToCloud() {
   const session = store.cloud;
   if (!session) {
     close();
-    store.cloudMode = 'create';
-    navigate('cloud');
+    router.push({ name: 'cloudSave' });
     return;
   }
   if (busy.value) return;
@@ -43,11 +45,11 @@ async function saveToCloud() {
 }
 function gotoExportQr() {
   close();
-  navigate('exportQr');
+  router.push({ name: 'exportQr' });
 }
 function gotoFolders() {
   close();
-  navigate('folders');
+  router.push({ name: 'folders' });
 }
 async function exportJson() {
   close();
@@ -70,7 +72,7 @@ async function exportJsonWithPasswords() {
   if (ok) showToast('Exportado em JSON (com senhas) — mantenha em local seguro');
 }
 function lock() {
-  confirmExitVault();
+  if (confirmExitVault()) router.back();
 }
 </script>
 

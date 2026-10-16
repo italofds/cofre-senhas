@@ -1,8 +1,19 @@
 <script setup>
 import { ref, computed } from 'vue';
+import { useRouter } from 'vue-router';
 import Icon from './Icon.vue';
-import { store, back, saveDraft, removeRecord, copyText, regenerate, addFolder } from '../lib/store.js';
+import { store, saveDraft, removeRecord, copyText, regenerate, addFolder } from '../lib/store.js';
 import { passwordStrength } from '../lib/strength.js';
+
+const router = useRouter();
+
+function save() {
+  if (saveDraft()) router.back();
+}
+function remove() {
+  removeRecord();
+  router.back();
+}
 
 const strength = computed(() => passwordStrength(store.draft.password));
 const title = computed(() => (store.editingId != null ? 'Editar registro' : 'Novo registro'));
@@ -34,9 +45,9 @@ function cancelCreateFolder() {
 <template>
   <div class="screen" data-screen-label="Registro">
     <div class="topbar">
-      <button class="top-back" @click="back"><Icon name="arrow-left" :size="24" /></button>
+      <button class="top-back" @click="router.back()"><Icon name="arrow-left" :size="24" /></button>
       <div class="top-title">{{ title }}</div>
-      <button class="top-link" @click="saveDraft">Salvar</button>
+      <button class="top-link" @click="save">Salvar</button>
     </div>
 
     <div class="screen-scroll scroll" style="position: static; flex: 1; padding: 10px 18px 40px;">
@@ -116,7 +127,7 @@ function cancelCreateFolder() {
       <div class="field-label">OBSERVAÇÕES</div>
       <textarea class="input-block" v-model="store.draft.notes" placeholder="Notas, perguntas de segurança, etc."></textarea>
 
-      <button v-if="store.editingId != null" class="danger-btn" style="margin-top: 20px;" @click="removeRecord">
+      <button v-if="store.editingId != null" class="danger-btn" style="margin-top: 20px;" @click="remove">
         <Icon name="trash" :size="19" /> Excluir registro
       </button>
     </div>

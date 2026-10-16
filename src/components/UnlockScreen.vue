@@ -1,8 +1,11 @@
 <script setup>
 import { ref } from 'vue';
+import { useRouter } from 'vue-router';
 import Icon from './Icon.vue';
-import { store, back, navigate, loadData, showToast } from '../lib/store.js';
+import { store, loadData, showToast } from '../lib/store.js';
 import { decryptVault, decryptVaultBinary } from '../lib/crypto.js';
+
+const router = useRouter();
 
 const master = ref('');
 const show = ref(false);
@@ -24,8 +27,7 @@ async function unlock() {
     else loadData(data, pending.name, pending.handle, pending.envelope.modified);
     master.value = '';
     store.pendingOpen = null;
-    store.screen = 'vault';
-    store.history = ['start'];
+    router.replace({ name: 'vault' });
     showToast('Cofre desbloqueado');
   } catch (e) {
     error.value = e.message || 'Senha mestra incorreta';
@@ -38,7 +40,7 @@ async function unlock() {
 <template>
   <div class="screen" data-screen-label="Desbloquear">
     <div class="topbar">
-      <button class="top-back" @click="back"><Icon name="arrow-left" :size="24" /></button>
+      <button class="top-back" @click="router.back()"><Icon name="arrow-left" :size="24" /></button>
     </div>
     <div class="screen-scroll scroll" style="position: static; flex: 1;">
       <div class="pad center-col" style="padding-top: 20px;">

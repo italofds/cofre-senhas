@@ -1,53 +1,27 @@
 <script setup>
-import { onMounted, onBeforeUnmount } from 'vue';
-import { store, navigate, back, showToast, confirmExitVault } from './lib/store.js';
+import { onMounted } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
+import { store, showToast } from './lib/store.js';
 import { addRecent } from './lib/files.js';
-import StartScreen from './components/StartScreen.vue';
-import UnlockScreen from './components/UnlockScreen.vue';
-import VaultScreen from './components/VaultScreen.vue';
-import RecordScreen from './components/RecordScreen.vue';
-import SaveScreen from './components/SaveScreen.vue';
-import CloudScreen from './components/CloudScreen.vue';
-import QrExportScreen from './components/QrExportScreen.vue';
-import QrScanScreen from './components/QrScanScreen.vue';
-import FoldersScreen from './components/FoldersScreen.vue';
 import MenuSheet from './components/MenuSheet.vue';
 import GeneratorSheet from './components/GeneratorSheet.vue';
 import Toast from './components/Toast.vue';
 
-/* ---------- botão voltar do navegador / dispositivo ----------
-   Mantém uma entrada extra ("sentinela") no histórico do navegador: o voltar
-   consome essa entrada, disparando `popstate`, e a navegação é tratada pelo app.
-   A sentinela é recolocada, exceto quando o usuário confirma sair do app. */
-function pushGuard() {
-  history.pushState({ cofreGuard: true }, '');
-}
+const router = useRouter();
+const route = useRoute();
 
-function onBackButton() {
-  if (store.showGenerator) {
-    store.showGenerator = false;
-  } else if (store.showMenu) {
-    store.showMenu = false;
-  } else if (store.screen === 'vault') {
-    confirmExitVault('Deseja sair deste cofre?');
-  } else if (store.screen === 'start') {
-    if (window.confirm('Deseja sair do aplicativo?')) {
-      history.back(); // sai da página (no app instalado, fecha o app)
-      return;
-    }
-  } else {
-    back();
-  }
-  pushGuard();
+// Na primeira interação, sai da entrada base (rota 'base') para a tela inicial ('start'), para o
+// voltar na tela inicial poder pedir confirmação. Isso é feito numa interação porque o
+// Chrome pula, no voltar, entradas do histórico criadas sem interação do usuário. O
+// pointerup vem antes do click, então a entrada é criada antes da ação do botão tocado.
+function leaveBase() {
+  if (route.name === 'base') router.push({ name: 'start' });
 }
 
 onMounted(() => {
-  if (!history.state || !history.state.cofreGuard) pushGuard();
-  window.addEventListener('popstate', onBackButton);
-});
-onBeforeUnmount(() => window.removeEventListener('popstate', onBackButton));
+  window.addEventListener('pointerup', leaveBase, true);
+  window.addEventListener('keydown', leaveBase, true);
 
-onMounted(() => {
   if (!('launchQueue' in window)) return;
   window.launchQueue.setConsumer(async (launchParams) => {
     if (!launchParams.files || launchParams.files.length === 0) return;
@@ -58,7 +32,7 @@ onMounted(() => {
       await addRecent(file.name, handle);
       store.pendingOpen = { name: file.name, envelope, handle };
       store.unlockError = '';
-      navigate('unlock');
+      router.push({ name: 'unlock' });
     } catch {
       showToast('Arquivo inválido ou não é um cofre');
     }
@@ -69,15 +43,7 @@ onMounted(() => {
 <template>
   <div class="app-shell">
     <div class="screen-area">
-      <StartScreen v-if="store.screen === 'start'" />
-      <UnlockScreen v-else-if="store.screen === 'unlock'" />
-      <VaultScreen v-else-if="store.screen === 'vault'" />
-      <RecordScreen v-else-if="store.screen === 'record'" />
-      <SaveScreen v-else-if="store.screen === 'save'" />
-      <CloudScreen v-else-if="store.screen === 'cloud'" />
-      <QrExportScreen v-else-if="store.screen === 'exportQr'" />
-      <QrScanScreen v-else-if="store.screen === 'scan'" />
-      <FoldersScreen v-else-if="store.screen === 'folders'" />
+      <RouterView />
     </div>
 
     <MenuSheet v-if="store.showMenu" />

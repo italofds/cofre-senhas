@@ -1,10 +1,13 @@
 <script setup>
 import { ref, computed } from 'vue';
+import { useRouter } from 'vue-router';
 import Icon from './Icon.vue';
-import { store, back, showToast, toVaultData, suggestedFileName } from '../lib/store.js';
+import { store, showToast, toVaultData, suggestedFileName } from '../lib/store.js';
 import { passwordStrength } from '../lib/strength.js';
 import { encryptVault } from '../lib/crypto.js';
 import { saveCofre, downloadText, addRecent, canShareFiles, shareFile } from '../lib/files.js';
+
+const router = useRouter();
 
 const master = ref('');
 const confirm = ref('');
@@ -69,14 +72,14 @@ function applySuccess(handle, name) {
   if (name) store.vaultName = name;
   store.modified = new Date().toISOString();
   store.dirty = false;
-  back();
+  router.back();
 }
 </script>
 
 <template>
   <div class="screen" data-screen-label="Salvar cofre">
     <div class="topbar">
-      <button class="top-back" @click="back"><Icon name="arrow-left" :size="24" /></button>
+      <button class="top-back" @click="router.back()"><Icon name="arrow-left" :size="24" /></button>
       <div class="top-title">Salvar cofre criptografado</div>
       <span style="width: 40px;"></span>
     </div>

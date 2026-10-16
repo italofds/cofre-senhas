@@ -1,7 +1,10 @@
 <script setup>
 import { ref, computed } from 'vue';
+import { useRouter } from 'vue-router';
 import Icon from './Icon.vue';
-import { store, back, addFolder, renameFolder, deleteFolder } from '../lib/store.js';
+import { store, addFolder, renameFolder, deleteFolder } from '../lib/store.js';
+
+const router = useRouter();
 
 const newName = ref('');
 const editing = ref(null);
@@ -33,7 +36,7 @@ function countLabel(f) {
 <template>
   <div class="screen" data-screen-label="Pastas">
     <div class="topbar">
-      <button class="top-back" @click="back"><Icon name="arrow-left" :size="24" /></button>
+      <button class="top-back" @click="router.back()"><Icon name="arrow-left" :size="24" /></button>
       <div class="top-title">Gerenciar pastas</div>
       <span style="width: 40px;"></span>
     </div>

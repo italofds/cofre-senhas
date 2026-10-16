@@ -1,14 +1,17 @@
 <script setup>
 import { ref, computed } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
 import Icon from './Icon.vue';
-import { store, back, loadData, showToast, toCloudData, setCloudSession, cloudSaved } from '../lib/store.js';
+import { store, loadData, showToast, toCloudData, setCloudSession, cloudSaved } from '../lib/store.js';
 import { passwordStrength } from '../lib/strength.js';
 import {
   CloudError, cloudMessage, createCloud, openCloud, saveCloud,
   isValidId, normalizeId, recentCloudIds, MIN_PASSWORD
 } from '../lib/cloud.js';
 
-const isNew = store.cloudMode === 'create';
+const router = useRouter();
+
+const isNew = useRoute().name === 'cloudSave';
 const recentIds = recentCloudIds();
 
 const id = ref(isNew ? '' : recentIds[0] || '');
@@ -29,8 +32,7 @@ async function open() {
   const { data, session } = await openCloud(id.value, master.value);
   loadData(data, session.id, null, data.modified);
   setCloudSession(session);
-  store.screen = 'vault';
-  store.history = ['start'];
+  router.replace({ name: 'vault' });
   showToast('Cofre desbloqueado');
 }
 
@@ -50,7 +52,7 @@ async function create() {
     session = await saveCloud(existing.session, data);
   }
   cloudSaved(session, data);
-  back();
+  router.back();
   showToast('Salvo na nuvem');
 }
 
@@ -72,7 +74,7 @@ async function submit() {
 <template>
   <div class="screen" :data-screen-label="isNew ? 'Salvar na nuvem' : 'Abrir da nuvem'">
     <div class="topbar">
-      <button class="top-back" @click="back"><Icon name="arrow-left" :size="24" /></button>
+      <button class="top-back" @click="router.back()"><Icon name="arrow-left" :size="24" /></button>
       <div class="top-title">{{ isNew ? 'Salvar na nuvem' : 'Abrir da nuvem' }}</div>
       <span style="width: 40px;"></span>
     </div>

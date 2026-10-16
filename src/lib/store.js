@@ -8,10 +8,6 @@ function emptyDraft(folder = 'Pessoal') {
 }
 
 export const store = reactive({
-  // navegação
-  screen: 'start',
-  history: [],
-
   // dados do cofre (SOMENTE em memória — nunca persistidos em disco/local)
   records: [],
   folders: [...DEFAULT_FOLDERS],
@@ -20,7 +16,6 @@ export const store = reactive({
   dirty: false,
   fileHandle: null,
   cloud: null, // sessão da nuvem { id, authKey, encKey, rev } — somente em memória
-  cloudMode: 'open', // 'open' | 'create' (tela da nuvem)
 
   // UI
   search: '',
@@ -38,15 +33,6 @@ export const store = reactive({
 
   toast: ''
 });
-
-/* ---------- navegação ---------- */
-export function navigate(screen) {
-  store.history.push(store.screen);
-  store.screen = screen;
-}
-export function back() {
-  store.screen = store.history.pop() || 'start';
-}
 
 /* ---------- toast ---------- */
 let toastTimer;
@@ -74,8 +60,6 @@ export function wipe() {
   store.showGenerator = false;
   store.pendingOpen = null;
   store.unlockError = '';
-  store.history = [];
-  store.screen = 'start';
 }
 
 // Pede confirmação e sai do cofre aberto. `question` é a pergunta usada quando não há alterações pendentes.
@@ -154,17 +138,15 @@ export function openRecord(id) {
   store.draft = { ...r };
   store.editingId = id;
   store.showPassword = false;
-  navigate('record');
 }
 export function newRecord() {
   const f = store.activeFolder !== 'Todas' ? store.activeFolder : (store.folders[0] || 'Pessoal');
   store.draft = emptyDraft(f);
   store.editingId = null;
   store.showPassword = false;
-  navigate('record');
 }
 export function saveDraft() {
-  if (!store.draft.title.trim()) { showToast('Informe um título'); return; }
+  if (!store.draft.title.trim()) { showToast('Informe um título'); return false; }
   if (store.editingId != null) {
     const i = store.records.findIndex((r) => r.id === store.editingId);
     if (i >= 0) store.records[i] = { ...store.draft, id: store.editingId };
@@ -172,13 +154,12 @@ export function saveDraft() {
     store.records.push({ ...store.draft, id: Date.now() });
   }
   store.dirty = true;
-  back();
   showToast('Registro salvo');
+  return true;
 }
 export function removeRecord() {
   store.records = store.records.filter((r) => r.id !== store.editingId);
   store.dirty = true;
-  back();
   showToast('Registro excluído');
 }
 

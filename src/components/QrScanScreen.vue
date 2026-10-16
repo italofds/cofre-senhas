@@ -1,9 +1,12 @@
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
+import { useRouter } from 'vue-router';
 import Icon from './Icon.vue';
-import { store, back, showToast } from '../lib/store.js';
+import { store, showToast } from '../lib/store.js';
 import { isBinaryVault } from '../lib/crypto.js';
 import { parseQrText, joinParts } from '../lib/qr.js';
+
+const router = useRouter();
 
 const video = ref(null);
 const starting = ref(true);
@@ -59,8 +62,8 @@ function finish() {
   if (scanner) scanner.stop();
   store.pendingOpen = { name: 'Cofre (QR code)', bytes, handle: null };
   store.unlockError = '';
-  // troca direta de tela: "voltar" no desbloqueio retorna ao início, não à câmera
-  store.screen = 'unlock';
+  // substitui a câmera no histórico: "voltar" no desbloqueio retorna ao início
+  router.replace({ name: 'unlock' });
 }
 
 // Lê o quadrado central do vídeo (o mesmo que aparece no visor), com resolução
@@ -110,7 +113,7 @@ onBeforeUnmount(() => {
 <template>
   <div class="screen" data-screen-label="Abrir por QR code">
     <div class="topbar">
-      <button class="top-back" @click="back"><Icon name="arrow-left" :size="24" /></button>
+      <button class="top-back" @click="router.back()"><Icon name="arrow-left" :size="24" /></button>
       <div class="top-title">Abrir por QR code</div>
       <span style="width: 40px;"></span>
     </div>

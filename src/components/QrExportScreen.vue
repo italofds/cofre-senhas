@@ -1,11 +1,14 @@
 <script setup>
 import { ref, computed } from 'vue';
+import { useRouter } from 'vue-router';
 import Icon from './Icon.vue';
-import { store, back, showToast, toCloudData, formatStamp } from '../lib/store.js';
+import { store, showToast, toCloudData, formatStamp } from '../lib/store.js';
 import { passwordStrength } from '../lib/strength.js';
 import { encryptVaultBinary } from '../lib/crypto.js';
 import { splitToQrTexts } from '../lib/qr.js';
 import { savePdf } from '../lib/files.js';
+
+const router = useRouter();
 
 const master = ref('');
 const confirm = ref('');
@@ -30,7 +33,7 @@ async function exportPdf() {
     if (!(await savePdf(blob, fileName.value))) return;
     master.value = '';
     confirm.value = '';
-    back();
+    router.back();
     showToast(texts.length > 1 ? `PDF gerado com ${texts.length} QR codes` : 'PDF gerado com 1 QR code');
   } catch {
     showToast('Falha ao gerar o PDF');
@@ -43,7 +46,7 @@ async function exportPdf() {
 <template>
   <div class="screen" data-screen-label="Exportar QR codes">
     <div class="topbar">
-      <button class="top-back" @click="back"><Icon name="arrow-left" :size="24" /></button>
+      <button class="top-back" @click="router.back()"><Icon name="arrow-left" :size="24" /></button>
       <div class="top-title">Exportar PDF com QR codes</div>
       <span style="width: 40px;"></span>
     </div>

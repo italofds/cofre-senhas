@@ -1,8 +1,20 @@
 <script setup>
 import { computed } from 'vue';
+import { useRouter } from 'vue-router';
 import Icon from './Icon.vue';
 import { store, openRecord, newRecord, copyText, formatStamp } from '../lib/store.js';
 import { passwordStrength } from '../lib/strength.js';
+
+const router = useRouter();
+
+function editRecord(id) {
+  openRecord(id);
+  router.push({ name: 'editRecord' });
+}
+function addRecord() {
+  newRecord();
+  router.push({ name: 'newRecord' });
+}
 
 // ordem alfabética do nome, ignorando maiúsculas/acentos e com números em ordem natural
 const byName = new Intl.Collator('pt-BR', { sensitivity: 'base', numeric: true });
@@ -88,7 +100,7 @@ const noResults = computed(() => store.records.length > 0 && filtered.value.leng
 
       <div class="list">
         <div v-for="r in filtered" :key="r.id" class="rec-card">
-          <button class="rec-open" @click="openRecord(r.id)">
+          <button class="rec-open" @click="editRecord(r.id)">
             <div class="rec-avatar">{{ r.initial }}</div>
             <div class="grow">
               <div class="rec-titly">
@@ -105,6 +117,6 @@ const noResults = computed(() => store.records.length > 0 && filtered.value.leng
       </div>
     </div>
 
-    <button class="fab" @click="newRecord"><Icon name="plus" :size="30" /></button>
+    <button class="fab" @click="addRecord"><Icon name="plus" :size="30" /></button>
   </div>
 </template>

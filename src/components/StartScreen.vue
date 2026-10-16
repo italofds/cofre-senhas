@@ -1,16 +1,19 @@
 <script setup>
 import { ref } from 'vue';
+import { useRouter } from 'vue-router';
 import Icon from './Icon.vue';
-import { store, navigate, loadData, showToast, formatStamp } from '../lib/store.js';
+import { store, loadData, showToast, formatStamp } from '../lib/store.js';
 import { openCofre, openJson, getRecents, reopenRecent, removeRecent } from '../lib/files.js';
 import { cloudEnabled } from '../lib/cloud.js';
+
+const router = useRouter();
 
 const recents = ref(getRecents());
 const cloudOn = cloudEnabled();
 
 function newList() {
   loadData({ records: [] }, 'Nova lista', null);
-  navigate('vault');
+  router.push({ name: 'vault' });
 }
 
 async function openFile() {
@@ -20,15 +23,14 @@ async function openFile() {
     store.pendingOpen = { name: res.name, envelope: JSON.parse(res.text), handle: res.handle };
     store.unlockError = '';
     recents.value = getRecents();
-    navigate('unlock');
+    router.push({ name: 'unlock' });
   } catch (e) {
     showToast('Arquivo inválido ou não é um cofre');
   }
 }
 
 function openFromCloud() {
-  store.cloudMode = 'open';
-  navigate('cloud');
+  router.push({ name: 'cloudOpen' });
 }
 
 async function importJson() {
@@ -39,7 +41,7 @@ async function importJson() {
     if (!data || !Array.isArray(data.records)) { showToast('JSON fora do formato esperado'); return; }
     loadData(data, 'Importado (JSON)', null);
     store.dirty = true;
-    navigate('vault');
+    router.push({ name: 'vault' });
     showToast('JSON importado');
   } catch (e) {
     showToast('JSON inválido');
@@ -52,7 +54,7 @@ async function openRecent(name) {
     if (res.needsManual) { showToast('Selecione o arquivo manualmente'); return openFile(); }
     store.pendingOpen = { name: res.name, envelope: JSON.parse(res.text), handle: res.handle };
     store.unlockError = '';
-    navigate('unlock');
+    router.push({ name: 'unlock' });
   } catch (e) {
     showToast('Não foi possível reabrir');
   }
@@ -94,7 +96,7 @@ function deleteRecent(name) {
           <Icon name="chevron-right" :size="20" style="color: var(--dim);" />
         </button>
 
-        <button class="action-card" @click="navigate('scan')">
+        <button class="action-card" @click="router.push({ name: 'scan' })">
           <div class="action-ico"><Icon name="qr" :size="21" /></div>
           <div class="grow">
             <div class="action-title">Abrir por QR code</div>
